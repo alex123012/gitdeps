@@ -1,37 +1,53 @@
 package main
 
 import (
-	"encoding/json"
-	"fmt"
+	"context"
 	"log"
-	"net/http"
 	"os"
+	"runtime"
+	"time"
 
 	"github.com/alex123012/dependency-bot/pkg/structs"
+	"k8s.io/klog/v2"
+)
+
+var (
+	HeaderName = "PRIVATE-TOKEN"
+	token      = os.Getenv("TOKEN")
+	GET        = "GET"
+	POST       = "POST"
 )
 
 func main() {
-	headerName, token := "PRIVATE-TOKEN", os.Getenv("TOKEN")
-	req, err := http.NewRequest("GET", "https://gitlab.com/api/v4/projects/33213896/repository/compare?from=lol&to=main", nil)
-	if err != nil {
-		log.Fatalln(err)
-	}
-	req.Header.Set(headerName, token)
+	ctx := context.Background()
+	tmp := structs.NewGitLab(os.Getenv("TOKEN_SWEED"), "https://gitlab.walli.com/")
+	// go SystemStats(ctx)
 
-	client := &http.Client{}
-	resp, err := client.Do(req)
+	err := tmp.Run(ctx)
 	if err != nil {
-		log.Fatalln(err)
+		klog.Errorln(err)
 	}
-	compare := new(structs.Compare)
-	err = getJsonStruct(resp, compare)
-	if err != nil {
-		log.Fatalln(err)
-	}
-	fmt.Println(compare)
 }
+func SystemStats(ctx context.Context) error {
+	mem := &runtime.MemStats{}
+	ctx, cancel := context.WithCancel(ctx)
+	defer cancel()
+	go func() {
+		for {
+			cpu := runtime.NumCPU()
+			log.Println("CPU:", cpu)
 
-func getJsonStruct(resp *http.Response, jsonVar interface{}) error {
-	defer resp.Body.Close()
-	return json.NewDecoder(resp.Body).Decode(jsonVar)
+			rot := runtime.NumGoroutine()
+			log.Println("Goroutine:", rot)
+
+			// Byte
+			runtime.ReadMemStats(mem)
+			log.Println("Memory:", mem.Alloc/1024)
+
+			time.Sleep(2 * time.Second)
+			log.Println("-------")
+		}
+	}()
+	<-ctx.Done()
+	return nil
 }
