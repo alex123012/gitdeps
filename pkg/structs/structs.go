@@ -254,12 +254,12 @@ func (g *GitlabRepository) Run(ctx context.Context) error {
 func timerFuncDecorator(ctx context.Context, f func(ctx context.Context) error, timer time.Duration) func() error {
 	return func() error {
 		for {
-			timer := time.NewTimer(timer)
-			<-timer.C
 			err := f(ctx)
 			if err != nil {
 				return err
 			}
+			timer := time.NewTimer(timer)
+			<-timer.C
 			timer.Reset(time.Second * 0)
 		}
 	}
