@@ -1,0 +1,33 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Chart.Name }}
+spec:
+  replicas: 1
+  strategy:
+    type: RollingUpdate
+  selector:
+    matchLabels:
+      app: {{ .Chart.Name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Chart.Name }}
+    spec:
+      imagePullSecrets:
+      - name: registrysecret
+      - name: regcred
+      restartPolicy: Always
+      containers:
+      - name: {{ .Chart.Name }}
+        image: {{ .Values.werf.image.app }}
+        imagePullPolicy: IfNotPresent
+        env:
+        - name: DEPENDECIES_TOKEN
+          value: {{ pluck .Values.werf.env .Values.api_secret | first | default .Values.api_secret._default }}
+        ports:
+        - containerPort: {{ pluck .Values.werf.env .Values.app.args.port | first | default .Values.app.args.port._default }}
+          name: metrics
+        command:
+        - /dependency-bot

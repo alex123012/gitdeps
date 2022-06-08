@@ -1,0 +1,30 @@
+app:
+  command:
+    _default:
+    - /dependency-bot
+  ingress:
+    whitelist:
+      _default:
+      - "127.0.0.1"
+      - "192.168.1.0"
+  args:
+  #   resources:
+  #     _default:
+  #     - sts
+  #     - deploy
+  #     - ingress
+  #     - pod
+  #   annotations:
+  #     _default:
+  #     - ci.werf.io/commit
+  #     - gitlab.ci.werf.io/pipeline-url
+  #   labels:
+  #     _default:
+  #     - app
+  #   namespaces:
+  #     _default:
+  #     - ""  # "" (empty string) for all namespaces
+    port:
+      _default: 8080
+  #   stats:
+  #     _default: false

@@ -1,0 +1,33 @@
+project: dependency-bot
+configVersion: 1
+---
+artifact: builder
+from: golang:1.18.2-alpine3.16
+git:
+- add: /
+  to: /app
+  includePaths:
+  - cmd
+  - pkg
+  - go.*
+  - Makefile
+  stageDependencies:
+    beforeSetup:
+    - "**/*"
+shell:
+  install:
+  - apk add --update make build-base
+  beforeSetup:
+    - cd /app
+    - make build-race
+---
+image: app
+from: alpine:3.16
+import:
+  - artifact: builder
+    add: /app/bin/dependency-bot
+    to: /
+    before: setup
+shell:
+  setup:
+  - chmod +x /dependency-bot
