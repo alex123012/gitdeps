@@ -1,1 +1,1 @@
-# dependency-bot
+# gitdeps

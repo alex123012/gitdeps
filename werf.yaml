@@ -1,4 +1,4 @@
-project: dependency-bot
+project: gitdeps
 configVersion: 1
 ---
 artifact: builder
@@ -12,22 +12,28 @@ git:
   - go.*
   - Makefile
   stageDependencies:
-    beforeSetup:
+    install:
+    - go.mod
+    - go.sum
+    setup:
     - "**/*"
 shell:
-  install:
+  beforeInstall:
   - apk add --update make build-base
-  beforeSetup:
+  install:
+  - cd /app
+  - go mod vendor
+  setup:
     - cd /app
-    - make build-race
+    - make build
 ---
 image: app
-from: alpine:3.16
+from: docker.io/scratch
 import:
   - artifact: builder
-    add: /app/bin/dependency-bot
+    add: /app/build/gitdeps
     to: /
     before: setup
 shell:
   setup:
-  - chmod +x /dependency-bot
+  - chmod +x /gitdeps

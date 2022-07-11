@@ -1,0 +1,26 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Chart.Name }}-config
+data:
+  config.yaml: |
+    hosts:
+{{ toYaml .Values.hosts | indent 6 }}
+    webhook_conf:
+      metadata:
+        name: {{ .Chart.Name }}
+{{- if .Values.webhook_conf.tls }}
+      tls:
+{{ toYaml .Values.webhook_conf.tls | indent 10 }}
+{{- end }}
+      webhook:
+        name:  {{ .Chart.Name }}.{{ .Release.Namespace }}.com
+        clientConfig:
+          service:
+            namespace: {{ .Release.Namespace }}
+            name: {{ .Chart.Name }}
+{{- if .Values.webhook_conf.webhook.rules }}
+        rules:
+{{ toYaml .Values.webhook_conf.webhook.rules | indent 10 }}
+{{- end }}

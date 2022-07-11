@@ -1,0 +1,72 @@
+{{ $certsPath := .Values.webhook_conf.tls.cert_file | split "/"}}
+---
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: {{ .Chart.Name }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{ .Chart.Name }}
+  template:
+    metadata:
+      annotations:
+        checksum/config: {{ include (print $.Template.BasePath "/validating-webhook-config.yaml") . | sha256sum }}
+      labels:
+        app: {{ .Chart.Name }}
+    spec:
+      serviceAccountName: {{ .Chart.Name }}
+      automountServiceAccountToken: true
+      imagePullSecrets:
+      - name: registrysecret
+      initContainers:
+      - name: generate-tls
+        image: {{ .Values.werf.image.app }}
+        command:
+        - /gitdeps
+        args:
+        - --config=/config.yaml
+        - webhook
+        - generate-webhook-configuration
+        volumeMounts:
+        - name: tls
+          mountPath: {{ .Values.webhook_conf.tls.path }}
+        - name: {{ .Chart.Name }}-config
+          mountPath: /config.yaml
+          subPath: config.yaml
+      containers:
+      - name: validating-webhook
+        image: {{ .Values.werf.image.app }}
+        imagePullPolicy: Always
+        command:
+        - /gitdeps
+        args:
+        - --config=/config.yaml
+        - webhook
+        - start-handler
+        ports:
+          - containerPort: 443
+        volumeMounts:
+        - name: tls
+          mountPath: {{ .Values.webhook_conf.tls.path }}
+        - name: {{ .Chart.Name }}-config
+          mountPath: /config.yaml
+          subPath: config.yaml
+        lifecycle:
+          preStop:
+            exec:
+              command:
+              - /gitdeps
+              - --config=/config.yaml
+              - webhook
+              - remove-webhook-configuration
+      volumes:
+      - name: tls
+        emptyDir: {}
+      - name: {{ .Chart.Name }}-config
+        configMap:
+          name: {{ .Chart.Name }}-config
+  strategy:
+    type: Recreate
+

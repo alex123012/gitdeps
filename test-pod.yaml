@@ -1,0 +1,36 @@
+# ---
+# kind: Pod
+# apiVersion: v1
+# metadata:
+#   name: test-app
+# spec:
+#   containers:
+#     - name: test-app
+#       image: ubuntu:focal
+#       command: ["/bin/bash"]
+#       args: ["-c", "sleep infinity"]
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-deployment
+  namespace: dev
+  labels:
+    app: nginx
+  annotations:
+    gitlab.ci.werf.io/pipeline-url: 'https://gitlab.walli.com/walli/sweed/server/pipelines/58656'
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: nginx
+  template:
+    metadata:
+      labels:
+        app: nginx
+    spec:
+      containers:
+      - name: nginx
+        image: nginx:1.14.2
+        ports:
+        - containerPort: 80

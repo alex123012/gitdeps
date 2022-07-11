@@ -1,0 +1,26 @@
+hosts:
+  example:
+    token: TOKEN-MY
+    url: https://gitlab.example.com
+webhook_conf:
+  metadata:
+    name: gitdeps
+  tls:
+      cert_file: key.pem
+      key_file: certificate.crt
+      organization: flant.com
+      path: /etc/webhook/certs/
+  webhook:
+    name:  gitdeps.dev.com
+    clientConfig:
+      service:
+        namespace: dev
+        name: gitdeps
+    rules:
+      - operations: ["UPDATE", "CREATE", "DELETE"]
+        rule:
+          apiGroups: ["apps", "networking.k8s.io", "extensions", ""]
+          apiVersions: ["*"]
+          resources: ["deployments", "ingresses", "statefulsets", "daemonsets", "services"]
+          scope: '*'
+
