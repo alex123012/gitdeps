@@ -12,7 +12,7 @@ func NewCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "gitlab",
 		Short: "",
-		RunE: func(cmd *cobra.Command, args []string) error {
+		RunE: func(_ *cobra.Command, _ []string) error {
 			annot := "https://gitlab.easy7.ru/diginavis/diginavis-bros/pipelines/2742"
 			dontHaveDefaultCommits, err := gitlab.TargetHaveAllCommitsFromDefault(annot)
 

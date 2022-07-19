@@ -1,6 +1,7 @@
 package webhook
 
 import (
+	"bytes"
 	"context"
 	"crypto/tls"
 	"encoding/json"
@@ -35,7 +36,7 @@ func NewWebHookCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "start-handler",
 		Short: "",
-		RunE: func(cmd *cobra.Command, args []string) error {
+		RunE: func(cmd *cobra.Command, _ []string) error {
 			ctx := cmd.Context()
 			// fromFile, err := cmd.Parent().Flags().GetBool("from-file")
 			// if err != nil {
@@ -57,6 +58,7 @@ func RunWebHook(ctx context.Context, fromFile bool) error {
 	fmt.Println("Starting webhook server")
 	var cert tls.Certificate
 	var err error
+	var caMap map[string]*bytes.Buffer
 	if fromFile {
 		cfg := &common.Config.WebhookConf
 		certsPath := cfg.Tls.Path
@@ -65,7 +67,7 @@ func RunWebHook(ctx context.Context, fromFile bool) error {
 
 		cert, err = tls.LoadX509KeyPair(certificateFile, keyFile)
 	} else {
-		caMap, err := webhook.GenerateCertificate(ctx, common.Config.WebhookConf, fromFile)
+		caMap, err = webhook.GenerateCertificate(common.Config.WebhookConf, fromFile)
 		if err != nil {
 			return err
 		}
@@ -212,6 +214,6 @@ func GetAdmissionRequest(r *http.Request, deserializer runtime.Decoder) (*admiss
 func ReturnError(w http.ResponseWriter, status int, msg string) {
 	// msg := fmt.Sprintf("error getting admission review from request: %v", err)
 	hclog.L().Error(msg)
-	w.WriteHeader(400)
+	w.WriteHeader(status)
 	w.Write([]byte(msg))
 }

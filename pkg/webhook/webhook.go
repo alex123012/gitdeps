@@ -24,7 +24,7 @@ import (
 	"k8s.io/client-go/rest"
 )
 
-func GenerateCertificate(ctx context.Context, WebhookConf config.WebHookConf, toFile bool) (map[string]*bytes.Buffer, error) {
+func GenerateCertificate(WebhookConf config.WebHookConf, toFile bool) (map[string]*bytes.Buffer, error) {
 	certsPath := WebhookConf.Tls.Path
 	certificateFile := path.Join(certsPath, WebhookConf.Tls.CertFile)
 	keyFile := path.Join(certsPath, WebhookConf.Tls.KeyFile)

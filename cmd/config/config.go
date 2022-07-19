@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	"github.com/alex123012/gitdeps/cmd/common"
-	"gopkg.in/yaml.v2"
+	"gopkg.in/yaml.v3"
 
 	"github.com/spf13/cobra"
 )

@@ -21,7 +21,7 @@ func NewWebhookGenCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "generate-webhook-configuration",
 		Short: "Validating webhook",
-		RunE: func(cmd *cobra.Command, args []string) error {
+		RunE: func(cmd *cobra.Command, _ []string) error {
 
 			ctx := cmd.Context()
 			config, err := GenerateNewConfig(local)
@@ -29,7 +29,7 @@ func NewWebhookGenCmd() *cobra.Command {
 				return err
 			}
 
-			caMap, err := webhook.GenerateCertificate(ctx, common.Config.WebhookConf, fromFile)
+			caMap, err := webhook.GenerateCertificate(common.Config.WebhookConf, fromFile)
 			if err != nil {
 				return err
 			}
@@ -52,7 +52,7 @@ func NewWebhookRemCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "remove-webhook-configuration",
 		Short: "Validating webhook",
-		RunE: func(cmd *cobra.Command, args []string) error {
+		RunE: func(cmd *cobra.Command, _ []string) error {
 
 			ctx := cmd.Context()
 			config, err := GenerateNewConfig(local)

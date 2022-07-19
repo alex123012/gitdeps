@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"os"
 	"os/signal"
-	"path/filepath"
 	"syscall"
 
 	dconfig "github.com/alex123012/gitdeps/pkg/config"
@@ -34,7 +33,7 @@ var (
 		Long:          ``,
 		SilenceErrors: false,
 		SilenceUsage:  true,
-		PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
+		PersistentPreRunE: func(_ *cobra.Command, _ []string) error {
 			if verbose {
 				logLevel = "debug"
 			}
@@ -116,14 +115,6 @@ func initConfig() {
 	viper.SetDefault("webhook_conf.webhook.sideEffects", "None")
 	viper.SetDefault("webhook_conf.webhook.admissionReviewVersions", "v1")
 
-	path, err := filepath.Abs("./")
-	if err != nil {
-		hclog.L().Warn(fmt.Sprintf("Can't use abs path for: %s", path))
-	}
-
-	viper.SetDefault("git.target_branch", "")
-	viper.SetDefault("git.compare_branch", "main")
-	viper.SetDefault("git.path", path)
 	viper.AutomaticEnv()
 
 	if err := viper.ReadInConfig(); err == nil {
